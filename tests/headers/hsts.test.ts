@@ -17,9 +17,7 @@ describe('checkHsts', () => {
   });
 
   it('flags weak max-age', () => {
-    const findings = checkHsts(
-      mockHeaders({ 'strict-transport-security': 'max-age=86400' }),
-    );
+    const findings = checkHsts(mockHeaders({ 'strict-transport-security': 'max-age=86400' }));
     expect(findings).toHaveLength(1);
     expect(findings[0].id).toBe('weak-hsts');
     expect(findings[0].severity).toBe('medium');

@@ -10,8 +10,6 @@ describe('checkNoSniff', () => {
   });
 
   it('passes with nosniff', () => {
-    expect(checkNoSniff(mockHeaders({ 'x-content-type-options': 'nosniff' }))).toHaveLength(
-      0,
-    );
+    expect(checkNoSniff(mockHeaders({ 'x-content-type-options': 'nosniff' }))).toHaveLength(0);
   });
 });

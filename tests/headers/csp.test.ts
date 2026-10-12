@@ -9,9 +9,7 @@ describe('checkCsp', () => {
   });
 
   it('passes strict CSP', () => {
-    const findings = checkCsp(
-      mockHeaders({ 'content-security-policy': "default-src 'self'" }),
-    );
+    const findings = checkCsp(mockHeaders({ 'content-security-policy': "default-src 'self'" }));
     expect(findings).toHaveLength(0);
   });
 

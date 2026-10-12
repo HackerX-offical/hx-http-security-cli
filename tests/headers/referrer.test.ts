@@ -8,9 +8,7 @@ describe('checkReferrerPolicy', () => {
 
   it('passes when set', () => {
     expect(
-      checkReferrerPolicy(
-        mockHeaders({ 'referrer-policy': 'strict-origin-when-cross-origin' }),
-      ),
+      checkReferrerPolicy(mockHeaders({ 'referrer-policy': 'strict-origin-when-cross-origin' })),
     ).toHaveLength(0);
   });
 });
