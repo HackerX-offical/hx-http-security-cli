@@ -1,12 +1,5 @@
-import { auditSecurityHeaders } from '../src/headers.js';
-
-function mockHeaders(map: Record<string, string>): Headers {
-  const h = new Headers();
-  for (const [k, v] of Object.entries(map)) {
-    h.set(k, v);
-  }
-  return h;
-}
+import { auditSecurityHeaders } from '../../src/headers/audit.js';
+import { mockHeaders } from '../helpers/mock-headers.js';
 
 describe('auditSecurityHeaders', () => {
   it('flags missing HSTS and CSP', () => {
@@ -19,6 +12,7 @@ describe('auditSecurityHeaders', () => {
     expect(ids).toContain('missing-hsts');
     expect(ids).toContain('missing-csp');
     expect(result.score).toBeLessThan(100);
+    expect(result.raw['x-content-type-options']).toBe('nosniff');
   });
 
   it('scores strong configuration higher', () => {

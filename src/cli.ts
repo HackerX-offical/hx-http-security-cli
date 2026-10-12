@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Command } from 'commander';
 import chalk from 'chalk';
-import { auditSecurityHeaders } from './headers.js';
+import { auditSecurityHeaders } from './headers/index.js';
 import { fetchWithRedirectChain, normalizeUrl } from './fetch.js';
 import { inspectTls } from './tls.js';
 
