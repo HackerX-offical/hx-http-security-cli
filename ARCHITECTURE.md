@@ -1,51 +1,56 @@
-# hx-http-security-cli architecture
+# hx-http-security-cli — architecture
 
-HTTP security header and TLS audit CLI for authorized web assessments.
+## Purpose
 
-## Layout
+Fetches HTTP(S) resources, evaluates response headers against security rules, follows
+redirect chains for visibility, and optionally inspects TLS certificates on a TCP
+connection. Non-goals: full DAST, JavaScript analysis, or WAF bypass.
 
-```
-src/
-  cli.ts              # Commander entry (audit, chain, tls)
-  index.ts            # Public package exports
-  fetch.ts            # Redirect chain fetch
-  tls.ts              # Direct TLS socket inspection
-  headers/
-    types.ts          # HeaderFinding, HeaderAuditResult
-    utils.ts          # getHeader, headersToRaw, parseMaxAge
-    scoring.ts        # Severity weights and score computation
-    audit.ts          # Orchestrates all rules into one audit
-    index.ts          # Barrel exports
-    rules/
-      hsts.ts         # Strict-Transport-Security
-      csp.ts          # Content-Security-Policy
-      clickjack.ts    # X-Frame-Options / frame-ancestors
-      nosniff.ts      # X-Content-Type-Options
-      referrer.ts     # Referrer-Policy
-      permissions.ts  # Permissions-Policy
-      disclosure.ts   # Server / X-Powered-By info findings
-      index.ts
+## High-level flow
 
-tests/
-  helpers/mock-headers.ts
-  headers/*.test.ts   # Unit tests per rule module + scoring + audit
-  http.integration.test.ts
+```mermaid
+flowchart LR
+  CLI[cli.ts] --> Fetch[fetch.ts]
+  Fetch --> Headers[headers/audit]
+  Headers --> Rules[headers/rules/*]
+  Headers --> Scoring[headers/scoring]
+  CLI --> TLS[tls.ts]
+  Rules --> Types[headers/types]
 ```
 
-## Header audit flow
+## Module map
 
-1. `auditSecurityHeaders(url, status, headers)` collects raw header map.
-2. Each `rules/*.ts` module returns zero or more `HeaderFinding` objects.
-3. `scoring.ts` sums severity penalties and derives a 0–100 score.
-4. CLI `audit` command fetches via `fetch.ts`, runs the audit, prints or emits JSON.
+| Path                               | Responsibility                                   |
+| ---------------------------------- | ------------------------------------------------ |
+| `src/cli.ts`                       | `audit`, `chain`, `tls` commands and exit policy |
+| `src/index.ts`                     | Public API re-exports                            |
+| `src/fetch.ts`                     | Redirect-following fetch, URL normalization      |
+| `src/tls.ts`                       | Direct TLS socket certificate inspection         |
+| `src/headers/audit.ts`             | Run all header rules, assemble findings          |
+| `src/headers/scoring.ts`           | Map findings to 0–100 score                      |
+| `src/headers/types.ts`             | Finding and audit result types                   |
+| `src/headers/utils.ts`             | Header name/value helpers                        |
+| `src/headers/rules/index.ts`       | Rule registry                                    |
+| `src/headers/rules/csp.ts`         | Content-Security-Policy checks                   |
+| `src/headers/rules/hsts.ts`        | Strict-Transport-Security checks                 |
+| `src/headers/rules/clickjack.ts`   | X-Frame-Options / frame-ancestors                |
+| `src/headers/rules/nosniff.ts`     | X-Content-Type-Options                           |
+| `src/headers/rules/referrer.ts`    | Referrer-Policy                                  |
+| `src/headers/rules/permissions.ts` | Permissions-Policy                               |
+| `src/headers/rules/disclosure.ts`  | Server / X-Powered-By disclosure                 |
 
-## Develop
+## Extension
 
-```bash
-npm install
-npm run build
-npm test
-npm run test:integration   # optional network tests
-```
+1. Add a rule module under `headers/rules/` and register it in `rules/index.ts`.
+2. Adjust weighting in `headers/scoring.ts` if the rule affects the score.
+3. Unit-test rules with static header maps — no live fetch in `*.spec.ts`.
+4. Run `npm test` and `npm run format:check`.
 
-See [SECURITY.md](./SECURITY.md) for authorized use.
+## Testing strategy
+
+- **Unit**: per-rule specs, scoring, fetch redirect logic (mocked).
+- **Integration**: `jest.integration.config.js` — optional live URLs.
+
+## Ethics & scope
+
+Authorized engagements only. See [SECURITY.md](./SECURITY.md).
