@@ -34,11 +34,7 @@ program
   .action(async (url: string, opts: { json?: boolean }) => {
     try {
       const chain = await fetchWithRedirectChain(normalizeUrl(url));
-      const audit = auditSecurityHeaders(
-        chain.finalUrl,
-        chain.finalStatus,
-        chain.finalHeaders,
-      );
+      const audit = auditSecurityHeaders(chain.finalUrl, chain.finalStatus, chain.finalHeaders);
 
       if (opts.json) {
         console.log(JSON.stringify({ chain, audit }, null, 2));
@@ -51,9 +47,7 @@ program
 
       for (const f of audit.findings) {
         const color = severityColor(f.severity);
-        console.log(
-          `${color(`[${f.severity}]`)} ${f.header}: ${f.message}`,
-        );
+        console.log(`${color(`[${f.severity}]`)} ${f.header}: ${f.message}`);
       }
 
       process.exit(audit.score < 70 ? 2 : 0);

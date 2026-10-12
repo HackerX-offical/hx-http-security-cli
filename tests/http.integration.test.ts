@@ -11,11 +11,7 @@ describe('live HTTP/TLS', () => {
 
   it('audits example.com headers', async () => {
     const chain = await fetchWithRedirectChain('https://example.com');
-    const audit = auditSecurityHeaders(
-      chain.finalUrl,
-      chain.finalStatus,
-      chain.finalHeaders,
-    );
+    const audit = auditSecurityHeaders(chain.finalUrl, chain.finalStatus, chain.finalHeaders);
     expect(audit.findings.length).toBeGreaterThan(0);
   });
 
