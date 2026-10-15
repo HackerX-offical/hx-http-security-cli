@@ -22,7 +22,7 @@ authorized to test.
 ## Install
 
 ```bash
-git clone https://github.com/HackerX-offical/hx-http-security-cli.git
+git clone https://github.com/HackerX-official/hx-http-security-cli.git
 cd hx-http-security-cli
 npm install
 npm run build
